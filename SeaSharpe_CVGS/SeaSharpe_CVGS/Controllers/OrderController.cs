@@ -7,12 +7,60 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using SeaSharpe_CVGS.Models;
+using System.Web.Security;
+using Microsoft.AspNet.Identity;
+using Microsoft.AspNet.Identity.EntityFramework;
 
 namespace SeaSharpe_CVGS.Controllers
 {
     public class OrderController : Controller
     {
+        
         private ApplicationDbContext db = new ApplicationDbContext();
+        UserManager<ApplicationUser> userManager;
+
+        /// <summary>
+        /// Return Current user
+        /// </summary>
+        private ApplicationUser CurrentUser
+        {
+            get
+            {
+                return userManager.FindById(User.Identity.GetUserId());
+            }
+        }
+
+        /// <summary>
+        /// Returns Current Member
+        /// </summary>
+        private Member CurrentMember
+        {
+            get
+            {
+                return db.Members.FirstOrDefault(m => m.User == CurrentUser);
+            }
+        }
+
+        /// <summary>
+        /// Tells if current user is employee 
+        /// </summary>
+        private bool IsEmployee
+        {
+            get
+            {
+                return db.Employees.Any(u => u.User == CurrentUser);
+            }
+        }
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        public OrderController()
+        {
+            db = new ApplicationDbContext();
+            userManager = new UserManager<ApplicationUser>(new UserStore<ApplicationUser>(this.db));
+        }
+
 
         #region Multiple Roles
         /// <summary>
@@ -21,21 +69,20 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>redirect to OrderManagement or OrderHistory methods</returns>
         public ActionResult Index()
         {
-            //if (Roles.IsUserInRole(@"employee"))
-            //{
-            //    return View(db.Orders.ToList());
-            return RedirectToAction("OrderManagement");
-            //}
-            //else if (Roles.IsUserInRole(@"member"))
-            //{
-            //    //return ViewEvents view
-            //      return RedirectToAction("OrderHistory");
-            //}
-            //else
-            //{
-            //    //return ViewEvents view
-            //      return RedirectToAction("OrderHistory");
-            //}
+            if (Roles.IsUserInRole(@"employee"))
+            {
+                return RedirectToAction("OrderManagement");
+            }
+            else if (Roles.IsUserInRole(@"member"))
+            {
+                //return ViewEvents view
+                return RedirectToAction("OrderHistory");
+            }
+            else
+            {
+                //send to Account/Login
+                return RedirectToAction("LogIn", "Account");
+            }
         }
         
         #endregion
@@ -86,6 +133,7 @@ namespace SeaSharpe_CVGS.Controllers
             return View(order);
         }
         #endregion
+
         #region Member Side
         /// <summary>
         /// list all orders waiting to be processed
@@ -103,17 +151,39 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>Cart view</returns>
         public ActionResult Cart(int? id)
         {
-            if (id == null)
-            {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Game game = db.Games.Find(id);
+            //if (id == null)
+            //{
+            //    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            //}
+            //Game game = db.Games.Find(id);
+
+            var game = db.Games.FirstOrDefault();
+            Order order = AddSelectedGameToOrder(game);
+
+            //order cant be processed
+            //check that member is member of the order 
+
             if (game == null)
             {
                 return HttpNotFound();
             }
-            return View(game);
+            return View(order);
         }
+
+        Order AddSelectedGameToOrder(Game currentGame)
+        {
+            var locId = CurrentMember.Id;
+
+            Order order = db.Orders.FirstOrDefault(o => o.Member.Id == locId); //memberId
+            OrderItem orderItem = new OrderItem();
+            orderItem.Order = order;
+            orderItem.Game = currentGame;
+
+            return order;
+        }
+       
+
+
 
         /// <summary>
         /// Member Side - Order Created when first item is added to cart
