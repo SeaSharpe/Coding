@@ -35,9 +35,19 @@
             @Html.DisplayFor(model => model.Rating)
         </dd>
 
+        <!-- Approval Label-->
+        <dt>
+            @Html.DisplayNameFor(model => model.IsApproved)
+        </dt>
+
+        <!-- Approval Checkbox-->
+        <dd>
+            @Html.CheckBoxFor(model => model.IsApproved)
+        </dd>
+
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Approve" class="btn btn-default" />
+                <input type="submit" value="Submit" class="btn btn-default" />
             </div>
         </div>
     </div>

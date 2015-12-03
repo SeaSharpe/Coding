@@ -52,17 +52,27 @@
                 @Html.RadioButtonFor(model => model.Rating, 8)
                 @Html.RadioButtonFor(model => model.Rating, 9)
                 @Html.RadioButtonFor(model => model.Rating, 10)
-                @Html.ValidationMessageFor(model => model.Body)
+                @Html.ValidationMessageFor(model => model.Rating)
             </div>
         </div>      
-        
+        @if(Model.Aprover != null)
+        {
+            <span>Your review was not approved by our employees.</span>
+        }
+        @if(Model.Aprover == null && Model.Author != null)
+        {
+            <span>Your review is pending approval from our employees.</span>
+        }
         <!-- Submit, Reset, and View Reviews buttons-->      
         <div class="form-group">
             <div class="col-md-offset-2 col-md-10">
                 <input type="reset" value="Reset" class="btn btn-default" />
                 <input type="submit" value="Submit" class="btn btn-default" />
-                @Html.ActionLink("View Reviews & Ratings", "ReviewsRating", "Review", new { id = Model.Game_Id }, null)
             </div>
         </div>
     </div>
+}
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
 }

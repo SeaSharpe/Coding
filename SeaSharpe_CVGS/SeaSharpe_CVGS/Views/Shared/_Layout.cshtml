@@ -56,9 +56,14 @@
             }            
         </div>
     </div>
+<<<<<<< HEAD
+    <div class="container body-content">
+        <span>@TempData["message"]</span>
+=======
     <div class="container body-content">
         <span>@TempData["error"]</span>
         <span>@TempData["Message"]</span>
+>>>>>>> refs/remotes/origin/master
         <div id="wrapper">
 
             <!-- Sidebar -->
@@ -156,10 +161,6 @@
 
     @Scripts.Render("~/bundles/jquery")
     @Scripts.Render("~/bundles/bootstrap")
-
-    <!-- Jquery UI script for datepicker-->
-    @Scripts.Render("~/Scripts/jquery-ui-1.11.4.js")
-    @Scripts.Render("~/Scripts/datePickerReady.js")
 
     @RenderSection("scripts", required: false)
 </body>

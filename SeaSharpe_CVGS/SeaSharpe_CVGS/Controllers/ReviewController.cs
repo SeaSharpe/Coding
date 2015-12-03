@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using SeaSharpe_CVGS.Models;
+using System.Data.Entity.Validation;
 
 namespace SeaSharpe_CVGS.Controllers
 {
@@ -19,21 +20,16 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>redirect to Review Management or ReviewsRating methods</returns>
         public ActionResult Index()
         {
-            //if (Roles.IsUserInRole(@"employee"))
-            //{
-            //   return View(db.Reviews.ToList());
-            return RedirectToAction("ReviewManagement");
-            //}
-            //else if (Roles.IsUserInRole(@"member"))
-            //{
-            //    //return SearchGames view
-            //      return RedirectToAction("ReviewsRating");
-            //}
-            //else
-            //{
-            //    //return SearchGames view
-            //      return RedirectToAction("ReviewsRating");
-            //}
+            if (User.IsInRole("Employee"))
+            {
+                return RedirectToAction("ReviewManagement");
+            }
+            
+            else
+            {
+                //return SearchGames view
+                return RedirectToAction("ReviewsRating");
+            }
             
         }   
      
@@ -41,12 +37,13 @@ namespace SeaSharpe_CVGS.Controllers
         /// List all reviews for a game and show average rating
         /// </summary>
         /// <returns>ReviewsRating view</returns>
+        //Available for all users
         public ActionResult ReviewsRating(int id)
         {            
             //Get list of all reviews/ratings for selected game
-            IQueryable<Review> gameReviews = db.Reviews.Where(r => r.Game_Id == id);
+            IQueryable<Review> gameReviews = db.Reviews.Where(r => r.Game_Id == id && r.IsApproved);
             ViewData["averageRating"] = "No ratings for this game.";
-            if(gameReviews != null)
+            if(gameReviews.Count() > 0)
             {
                 //Calculate average based on all reviews and ratings
                 ViewData["averageRating"] = gameReviews.Average(r => r.Rating);
@@ -59,6 +56,7 @@ namespace SeaSharpe_CVGS.Controllers
         /// Display details for selected review on ReviewsRating page
         /// </summary>
         /// <returns>PartialReviewDetails view</returns>
+        //Available to all users
         public PartialViewResult PartialReviewDetails(int id)
         {
             Review review = db.Reviews.Find(id);
@@ -71,6 +69,7 @@ namespace SeaSharpe_CVGS.Controllers
         /// List all reviews awaiting review
         /// </summary>
         /// <returns>ReviewManagement view</returns>
+        [Authorize(Roles = "Employee")]
         public ActionResult ReviewManagement()
         {
             List<Review> reviewList = db.Reviews.Where(r => r.Aprover == null && r.Subject != null).ToList();
@@ -78,9 +77,11 @@ namespace SeaSharpe_CVGS.Controllers
         }
 
         /// <summary>
-        /// displays the currently selected review for approval/rejection
+        /// displays the currently selected review
         /// </summary>
         /// <returns>PartialSelectedReview view</returns>
+        //Available to all users
+        [Authorize(Roles = "Employee")]
         public PartialViewResult PartialSelectedReview(int id)
         {
             Review review = db.Reviews.Find(id);
@@ -94,16 +95,28 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>Review Management view</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "Id,Rating,Subject,Body")] Review review)
+        [Authorize(Roles = "Employee")]
+        public ActionResult PartialSelectedReview(int Id, bool IsApproved)
         {
-            if (ModelState.IsValid)
+            try
             {
+                Review review = db.Reviews.FirstOrDefault(r => r.Id == Id);
+                review.IsApproved = IsApproved;
+                review.Aprover = CurrentEmployee;
+                //Update the model to include binded changes
+                ModelState.Clear();
+                TryValidateModel(review);
                 db.Entry(review).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("ReviewManagement");
             }
-            return View(review);
-        }
+
+            catch (DbEntityValidationException e)
+            {
+                TempData["message"] = e.EntityValidationErrors.First().ValidationErrors.First().ToString();
+            }
+            
+            return RedirectToAction("ReviewManagement");
+        }        
 
         /// <summary>
         /// post back - review rejected by employee, delete review
@@ -111,16 +124,16 @@ namespace SeaSharpe_CVGS.Controllers
         /// </summary>
         /// <param name="id">review id</param>
         /// <returns>Review Management view</returns>
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public ActionResult DeleteConfirmed(int id)
-        {
-            Review review = db.Reviews.Find(id);
-            db.Reviews.Remove(review);
-            db.SaveChanges();
-            return RedirectToAction("ReviewManagement");
-        }
-
+        //[HttpPost, ActionName("Delete")]
+        //[ValidateAntiForgeryToken]
+        //public ActionResult DeleteConfirmed(int id)
+        //{
+        //    Review review = db.Reviews.Find(id);
+        //    db.Reviews.Remove(review);
+        //    db.SaveChanges();
+        //    return RedirectToAction("ReviewManagement");
+        //}
+        // NOTE: I don't think we need this as reviews are never technically 'deleted' just created and updated to various states -Peter T
         #endregion
 
         #region Member Side      
@@ -129,6 +142,7 @@ namespace SeaSharpe_CVGS.Controllers
         /// **displayed on game details view***
         /// </summary>
         /// <returns>PartialCreateReview view</returns>
+        /// Can be viewed by non-members but if they try to submit they will be required to login
         public PartialViewResult PartialCreateReview(int id)
         {            
             return PartialView();
@@ -140,15 +154,18 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>GameDetails view</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles="Member")]
         public ActionResult PartialCreateReview([Bind(Include = "Id,Rating,Subject,Body,Game_Id")] Review review)
         {
             try
             {
-                //Update objects for model
+                //Set current game 
                 Game reviewGame = db.Games.FirstOrDefault(g => g.Id == review.Game_Id);
                 review.Game = reviewGame;
-                review.Author = new Member();
 
+                //Set current member to the author of the review
+                review.Author = CurrentMember;
+               
                 //Update the model to include binded changes
                 ModelState.Clear();
                 TryValidateModel(review);
@@ -162,15 +179,25 @@ namespace SeaSharpe_CVGS.Controllers
                     if (originalReview == null)
                     {
                         db.Reviews.Add(review);
+                        TempData["message"] = "Review added.";
                     }
 
                     //Update if review already exists
                     else
                     {
-                        db.Entry(review).State = EntityState.Modified;                        
+                        //Detach original review from database
+                        db.Entry(originalReview).State = EntityState.Detached;
+
+                        //Set approver to null
+                        review.Aprover = null;
+
+                        //Update the review
+                        db.Entry(review).State = EntityState.Modified;
+                        TempData["message"] = "Review modified.";
                     }
-                    db.SaveChanges();
-                    TempData["message"] = "Review added.";
+
+                    //Save db changes
+                    db.SaveChanges();                    
                 }
 
             }                
@@ -185,26 +212,27 @@ namespace SeaSharpe_CVGS.Controllers
             return RedirectToAction("Details", "Game", new { id = review.Game_Id });
         }
 
-
-       /// <summary>
+        /// <summary>
         /// post back for review creation
         /// **** review must be validated by employee before appears in Reviews/Rating list ****
         /// </summary>
-       /// <param name="review">Review object</param>
-       /// <returns></returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,Rating,Subject,Body")] Review review)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Reviews.Add(review);
-                db.SaveChanges();
-                return RedirectToAction("Game/Details");
-            }
+        /// <param name="review">Review object</param>
+        /// <returns></returns>
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //[Authorize(Roles = "Member")]
+        //public ActionResult Create([Bind(Include = "Id,Rating,Subject,Body")] Review review)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.Reviews.Add(review);
+        //        db.SaveChanges();
+        //        return RedirectToAction("Game/Details");
+        //    }
 
-            return View(review);
-        }
+        //    return View(review);
+        //}
+        // NOTE: I do not think we need this method/view anymore as it is being handle by PartialCreateReview
         #endregion
         
     }

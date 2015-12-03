@@ -71,19 +71,34 @@ namespace SeaSharpe_CVGS.Controllers
             }
         }
 
+<<<<<<< HEAD
+        public ApplicationUser CurrentUser
+        {
+            get
+            {
+                return DbContext.Users.FirstOrDefault(u => u.UserName == User.Identity.Name);
+=======
         public ApplicationUser CurrentUser 
         {
             get
             {
                 return DbContext.Users.FirstOrDefault(u => u.UserName == User.Identity.Name); 
+>>>>>>> refs/remotes/origin/master
             }
         }
 
         public Member CurrentMember
+<<<<<<< HEAD
+        {
+            get
+            {
+                return DbContext.Members.FirstOrDefault(m => m.User.UserName == User.Identity.Name);
+=======
         { 
             get 
             {
                 return DbContext.Members.FirstOrDefault(m => m.User.UserName == User.Identity.Name); 
+>>>>>>> refs/remotes/origin/master
             }
         }
 
@@ -99,7 +114,11 @@ namespace SeaSharpe_CVGS.Controllers
 
         public bool IsEmployee { get { return CurrentEmployee != null; } }
 
+<<<<<<< HEAD
+        public bool IsMember { get { return CurrentMember != null; } }
+=======
         public bool IsMember { get { return CurrentMember != null;} }
+>>>>>>> refs/remotes/origin/master
 
         protected override void Dispose(bool disposing)
         {

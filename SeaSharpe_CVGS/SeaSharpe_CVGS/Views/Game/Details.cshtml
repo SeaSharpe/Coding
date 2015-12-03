@@ -61,8 +61,9 @@
             @Html.DisplayFor(model => model.ESRB)
         </dd>
 
+
         <!-- display create review form if review is approved, else display review details TODO: replace true with !isApproved-->
-        @if (true) 
+        @if (!(Boolean)ViewData["isApproved"]) 
         { 
             @Html.Partial("~/Views/Review/PartialCreateReview.cshtml", ViewData["review"]); 
         }        
@@ -72,6 +73,8 @@
             @Html.Partial("~/Views/Review/PartialReviewDetails.cshtml", ViewData["review"]);    
         }
         
+        <!-- link to other reviews for this game-->
+        @Html.ActionLink("View Reviews & Ratings", "ReviewsRating", "Review", new { id = Model.Id }, null)
         
     </dl>
 </div>
