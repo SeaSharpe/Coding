@@ -183,6 +183,7 @@
       <DependentUpon>201511271956227_CVGS_Classes.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\UserViewModels.cs" />
     <Compile Include="Models\AccountViewModels.cs" />
     <Compile Include="Models\IdentityModels.cs" />
     <Compile Include="Models\ManageViewModels.cs" />
@@ -195,6 +196,7 @@
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
     <Content Include="Content\game.css" />
+    <Content Include="Content\home.css" />
     <Content Include="Content\main.css" />
     <Content Include="Content\simple-sidebar.css" />
     <Content Include="Content\themes\base\accordion.css" />
@@ -320,18 +322,16 @@
     <Content Include="Views\Report\ListMembersReport.cshtml" />
     <Content Include="Views\Report\ListGamesReport.cshtml" />
     <Content Include="Views\Report\GameDetailsReport.cshtml" />
-    <Content Include="Views\User\Create.cshtml" />
     <Content Include="Views\User\Edit.cshtml" />
     <Content Include="Views\Order\PartialOutstandingOrders.cshtml" />
     <Content Include="Views\Order\PartialSelectedOrder.cshtml" />
-    <Content Include="Views\Address\PartialCreate.cshtml" />
-    <Content Include="Views\Address\PartialEdit.cshtml" />
     <Content Include="Views\Review\PartialSelectedReview.cshtml" />
     <Content Include="Views\Review\PartialCreateReview.cshtml" />
     <Content Include="Views\Event\PartialSelectedEvent.cshtml" />
     <Content Include="Views\Friendship\PartialFriendsList.cshtml" />
     <Content Include="Views\Friendship\PartialFamilyList.cshtml" />
     <Content Include="Views\Review\PartialReviewDetails.cshtml" />
+    <Content Include="Views\Shared\_AddressPartial.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -38,7 +38,7 @@ namespace SeaSharpe_CVGS.Controllers
         {
             get
             {
-                throw new NotImplementedException();
+                return typeof(RoleController).FullName;
             }
             set
             {

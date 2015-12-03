@@ -3,113 +3,108 @@
 @{
     ViewBag.Title = "Search For Games";
 }
-<!DOCTYPE html>
-<html lang="en">
     <head>
-        <title>@ViewBag.Title</title>
         <link rel="stylesheet" href="~/Content/game.css" type="text/css">
-    </head>    
-<body>
-    <h1>@ViewBag.Title</h1>
+    <title>ViewBag.Title</title>
+    </head>
+
+        <h1>@ViewBag.Title</h1>
     <hr />
-    <div class="row">
-        <div class="col-lg-12">
-            <!-- Search form-->
-            @using (Html.BeginForm("SearchGames", "Game", FormMethod.Get))
-            {
-                <div class="form-horizontal">
-                    @Html.ValidationSummary(true)
-                    <!-- Game Name Search Field -->
-                    <div class="form-group">
-                        @Html.Label("Search Criteria:", new { @class = "control-label col-md-4" })
-                        <div class="col-md-3">
-                            @Html.TextBox("nameSearch")
-                        </div>
-                        <div class="col-md-5">
+                    <div class="row">
+                        <div class="col-lg-12">
+                            <!-- Search form-->
+                            @using (Html.BeginForm("SearchGames", "Game", FormMethod.Get))
+                            {
+                                <div class="form-horizontal">
+                                    @Html.ValidationSummary(true)
+                                    <!-- Game Name Search Field -->
+                                    <div class="form-group">
+                            @Html.Label("Search Criteria:", new { @class = "control-label col-md-4" })
+                            <div class="col-md-3">
+                                            @Html.TextBox("nameSearch")
+                                        </div>
+                            <div class="col-md-5">
                             <input type="submit" value="Search" class="btn greenButton" id="searchSubmit" />
-                        </div>
+                            </div>
                         @Html.Label("Use the filters below to refine your search results:", new { @class = "control-label col-md-6 col-md-offset-1" })
-                    </div>
-                    
-                    <!-- Platform Search Listbox -->
+                                    </div>
+
+                                    <!-- Platform Search Listbox -->
 
                     <div class="col-md-2 col-md-offset-1">
-                        <div class="form-group">
+                                        <div class="form-group">
                             <span class="title">@Html.DisplayNameFor(model => model.Platform)</span>
-                            @Html.ListBox("platformSearch", (SelectList)ViewData["platformList"], new { @class = "listbox" })
-                        </div>
-                    </div>
-                    <!-- Category Search Listbox -->
+                                @Html.ListBox("platformSearch", (SelectList)ViewData["platformList"], new { @class = "listbox" })
+                                        </div>
+                                    </div>
+                                    <!-- Category Search Listbox -->
 
                     <div class="col-md-2 col-md-offset-2">
-                        <div class="form-group">
+                                        <div class="form-group">
                             <span class="title">@Html.DisplayNameFor(model => model.Categories)</span>
-                            @Html.ListBox("categorySearch", (SelectList)ViewData["categoryList"], new { @class = "listbox" })
-                            @Html.CheckBox("isInclusive")
+                                @Html.ListBox("categorySearch", (SelectList)ViewData["categoryList"], new { @class = "listbox" })
+                                @Html.CheckBox("isInclusive")
                             @Html.Label("Inclusive?")
-
-                        </div>
-                    </div>
-                    <!-- ESRB Search Listbox -->
+                                
+                                        </div>
+                                    </div>
+                                    <!-- ESRB Search Listbox -->
 
                     <div class="col-md-2 col-md-offset-2">
-                        <div class="form-group">
+                                        <div class="form-group">
                             <span class="title">@Html.DisplayNameFor(model => model.ESRB)</span>
-                            @Html.ListBox("esrbSearch", (SelectList)ViewData["esrbList"], new { @class = "listbox" })
-                        </div>
-                    </div>
-                    <div class="form-group">
-                    </div>
-                </div>
-            }
+                                @Html.ListBox("esrbSearch", (SelectList)ViewData["esrbList"], new { @class = "listbox" })
+                                        </div>
+                                    </div>
+                                    <div class="form-group">
+                                    </div>
+                                </div>
+                            }
         </div>
     </div>
     <div class="row">
         <div class="col-lg-12">
-            <table class="table">
-                <tr>
-                    <!-- Game Name Header -->
-                    <th>
-                        @Html.DisplayNameFor(model => model.Name)
-                    </th>
-                    <!-- Game Platform Header -->
-                    <th>
-                        @Html.DisplayNameFor(model => model.Platform)
-                    </th>
-                    <!-- Game Cover Header-->
-                    <th>
-                        @Html.DisplayName("Cover Art")
-                    </th>
-                    <!-- Game Details Header -->
-                    <th>
-                        @Html.DisplayName("View Details")
-                    </th>
-                </tr>
-                @foreach (var item in Model)
-                {
-                    <tr>
-                        <!-- Game Name Display-->
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Name)
-                        </td>
-                        <!-- Game Platform Display-->
-                        <td>
-                            @Html.DisplayFor(modelItem => item.Platform.Name)
-                        </td>
-                        <!-- Game Image Display -->
-                        <td>
-                            <img src="@item.ImagePath" class="img-thumbnail" width="100" height="175" />
-                        </td>
-                        <!-- Game Details Link-->
-                        <td>
+                            <table class="table">
+                                <tr>
+                                    <!-- Game Name Header -->
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Name)
+                                    </th>
+                                    <!-- Game Platform Header -->
+                                    <th>
+                                        @Html.DisplayNameFor(model => model.Platform)
+                                    </th>
+                                    <!-- Game Cover Header-->
+                                    <th>
+                                        @Html.DisplayName("Cover Art")
+                                    </th>
+                                    <!-- Game Details Header -->
+                                    <th>
+                                        @Html.DisplayName("View Details")
+                                    </th>
+                                </tr>
+                                @foreach (var item in Model)
+                                {
+                                    <tr>
+                                        <!-- Game Name Display-->
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Name)
+                                        </td>
+                                        <!-- Game Platform Display-->
+                                        <td>
+                                            @Html.DisplayFor(modelItem => item.Platform.Name)
+                                        </td>
+                                        <!-- Game Image Display -->
+                                        <td>
+                                            <img src="@item.ImagePath" class="img-thumbnail" width="100" height="175" />
+                                        </td>
+                                        <!-- Game Details Link-->
+                                        <td>
                             @Html.ActionLink("Details", "Details", new { id = item.Id })
-                        </td>
-                    </tr>
-                }
-            </table>
+                                        </td>
+                                    </tr>
+                                }
+                            </table>
+                        </div>
         </div>
-    </div>
-</body>
 
-
-</html>

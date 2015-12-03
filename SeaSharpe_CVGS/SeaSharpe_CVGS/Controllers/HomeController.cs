@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
+using SeaSharpe_CVGS.Models;
 
 namespace SeaSharpe_CVGS.Controllers
 {
@@ -10,7 +11,8 @@ namespace SeaSharpe_CVGS.Controllers
     {
         public ActionResult Index()
         {
-            return View();
+            IQueryable<Game> listOfGames = db.Games.OrderByDescending(x=>x.Id).Take(8);
+            return View(listOfGames.ToList());
         }
 
         public ActionResult About()

@@ -90,16 +90,53 @@ Steve | nil | 0 | 0 |
 - Members reminded that after their controller is complete that unit tests will be required to be written
 - Milestones added to the README file for day to day requirements of members. 
   - Members required to add their initials to each milestone when complete so we can monitor how people are doing
+
+**Next Meeting: December 2nd**
+
+## December 2, 2015
+Manny absent (wife giving birth)
+
+### Review
+#### Work Period from November 18th - December 2nd
+- Most members met the milestone for having half their controller done by Sunday November 29th
+- Steve switched from Event controller to Client Documentation
+
+|  Member | Worked On  | Hours This Week  |  Total Hours for Implementation |
+------ | ----- | -------- | ----------
+Dan | Order controller | 21.5 | 4 | 25.5
+John | User/Address controller | 20 | 18 | 38
+Manny | Friendship controller | unknown  | 9 |
+Nicole | GUIs | 15 | 16 | 31
+Peter | Game/Review controller | 20 | 24 | 44
+Rob | Report controller | 13 | 4 | 17
+Steve | Documentation | 15 | 0 | 15
+
+### During the Meeting
+- John discussed issues he's having with User controller
+- Peter mentioned that he was waiting on wish list to do the library page, should be able to start it now
+- Rob waiting for data for report views
+- Steve will post what he has for client/employee documentation
+- Dan all methods show views, need to connect the view to controller
+- Nicole has done what Gui's were ready to be done.
+
+### Moving forward
+- Nicole can do User/Address/Report views
+- Each member to write unit tests for their own controller
+- Each member to add documentation comment to the class for their controller and any methods that are missing them
+- Some views are unused and can be deleted by the member that worked on that controller.
   
+**Next Meeting: December 9th**
+
 | Date | Item | Signoffs |
 | ---- | ---- | -------- |
 | November 25, 2015 | Discord Meeting | DH JS ML ND PT SB |
 | November 27, 2015 | Manditory Class Attendance | DH JS ML ND PT RS SB |
 | November 28, 2015 | Half of assigned controllers completed | DH JS ML ND(N/A) PT RS |
-| December 2, 2015  | Assigned controllers completed (with views)  |
+| December 2, 2015  | Assigned controllers completed (with views)  | ML
 | December 9, 2015  | Unit Tests for Assigned controllers completed |
 | December 9, 2015  | Technical & Client Documentation |
 | December 9, 2015  | Installer CD for server |
 | December 11, 2015 | Final Due Date |
 
-**Next Meeting: December 4th**
+
+

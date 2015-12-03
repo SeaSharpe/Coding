@@ -1,4 +1,4 @@
-﻿@model SeaSharpe_CVGS.Models.Member
+﻿@model SeaSharpe_CVGS.Models.ProfileViewModel
 
 @{
     ViewBag.Title = "Edit";
@@ -9,42 +9,78 @@
 @using (Html.BeginForm())
 {
     @Html.AntiForgeryToken()
-    
-    <div class="form-horizontal">
-        <h4>Member</h4>
-        <hr />
-        @Html.ValidationSummary(true)
-        @Html.HiddenFor(model => model.Id)
+    <div class="row">
+        <div class="col-md-4">
 
-        <div class="form-group">
-            @Html.LabelFor(model => model.IsEmailVerified, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.IsEmailVerified)
-                @Html.ValidationMessageFor(model => model.IsEmailVerified)
+            <div class="form-horizontal">
+                <h4>Member</h4>
+                <hr />
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(model => model.Member.Id)
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.FirstName, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.FirstName) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.FirstName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.LastName, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.LastName) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.LastName, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.Email, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.Email) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.Email, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.PhoneNumber, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.PhoneNumber) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.PhoneNumber, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.Gender, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.Gender) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.Gender, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.User.DateOfBirth, new { htmlAttributes = new { @class = "form-control", placeholder = Html.DisplayNameFor(m => m.Member.User.DateOfBirth) } })
+                        @Html.ValidationMessageFor(model => model.Member.User.DateOfBirth, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Member.IsEmailMarketingAllowed)
+                        @Html.LabelFor(model => model.Member.IsEmailMarketingAllowed, "I wish to receive promotional material")
+                        @Html.ValidationMessageFor(model => model.Member.IsEmailMarketingAllowed)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Save" class="btn btn-default greenButton" />
+                    </div>
+                </div>
             </div>
         </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.IsEmailMarketingAllowed, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.IsEmailMarketingAllowed)
-                @Html.ValidationMessageFor(model => model.IsEmailMarketingAllowed)
+            <div class="col-md-4">
+                @Html.Partial("_AddressPartial", Model.BillingAddress, new ViewDataDictionary() { TemplateInfo = new TemplateInfo() { HtmlFieldPrefix = "BillingAddress" } })
             </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.StripeID, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.StripeID)
-                @Html.ValidationMessageFor(model => model.StripeID)
+            <div class="col-md-4">
+                @Html.Partial("_AddressPartial", Model.ShippingAddress, new ViewDataDictionary() { TemplateInfo = new TemplateInfo() { HtmlFieldPrefix = "ShippingAddress" } })
             </div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <input type="submit" value="Save" class="btn btn-default greenButton" />
-            </div>
-        </div>
     </div>
 }
 

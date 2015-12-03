@@ -1,4 +1,10 @@
-﻿using System;
+﻿/*
+ * File Name: UserController.cs
+ * 
+ * Handles user profiles
+ */
+
+using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Entity;
@@ -7,40 +13,14 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using SeaSharpe_CVGS.Models;
+using System.Data.Entity.Validation;
+using System.Text;
 
 namespace SeaSharpe_CVGS.Controllers
 {
+    [Authorize]
     public class UserController : Controller
     {
-        #region Member Side
-        /// <summary>
-        /// Displays sign up form for new members
-        /// </summary>
-        /// <returns>Create view</returns>
-        public ActionResult Create()
-        {
-            return View();
-        }
-
-       /// <summary>
-       /// post back for create member 
-       /// </summary>
-       /// <param name="member">member object</param>
-       /// <returns>redirect to Home/Index(display message to check email for verification)</returns>
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include="Id,IsEmailVerified,IsEmailMarketingAllowed,StripeID")] Member member)
-        {
-            if (ModelState.IsValid)
-            {
-                db.Members.Add(member);
-                db.SaveChanges();
-                return RedirectToAction("Home/Index");
-            }
-
-            return View(member);
-        }
-
         /// <summary>
         /// Displays member profile page
         /// ** contains (2) partial address views**
@@ -49,16 +29,34 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>Edit view</returns>
         public ActionResult Edit(int? id)
         {
-            if (id == null)
+            ProfileViewModel model = new ProfileViewModel
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
-            Member member = db.Members.Find(id);
-            if (member == null)
+                Member = db.Members.FirstOrDefault(m => m.Id == id || m.User.UserName == User.Identity.Name)
+            };
+
+            var memberAddresses = db.
+                Addresses.
+                Where(a => a.Member.Id == model.Member.Id).
+                OrderBy(a => a.Id);
+
+            // Shipping address is the first address Billing adddress is the second address or a new adress
+            model.ShippingAddress = memberAddresses.FirstOrDefault() 
+                ?? new Address { Member = model.Member };
+            model.BillingAddress = memberAddresses.Skip(1).FirstOrDefault() 
+                ?? new Address { Member = model.Member };
+
+
+            if (model.Member == null)
             {
                 return HttpNotFound();
             }
-            return View(member);
+
+            if ( User.IsInRole("Employee") || model.Member.User.UserName == User.Identity.Name )
+            {
+                return View(model);
+            }
+
+            throw new UnauthorizedAccessException("You may not access this profile.");
         }
 
         /// <summary>
@@ -68,67 +66,80 @@ namespace SeaSharpe_CVGS.Controllers
         /// <returns>redirect to Game/SearchGames</returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include="Id,IsEmailVerified,IsEmailMarketingAllowed,StripeID")] Member member)
-        {
-            if (ModelState.IsValid)
+        public ActionResult Edit(
+            [Bind(Prefix = "Member")] Member member, 
+            [Bind(Prefix = "BillingAddress")] Address billingAddress, 
+            [Bind(Prefix = "ShippingAddress")] Address shippingAddress) {
+            var dbMember = db.Members.Find(member.Id);
+            var dbBillingAddress = db.Addresses.Find(billingAddress.Id);
+            var dbShippingAddress = db.Addresses.Find(billingAddress.Id);
+
+            if (dbMember == null)
             {
-                db.Entry(member).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Game/SearchGames");
+                TempData["Message"] = "Warning: Member not found.";
             }
-            return View(member);
+            else
+            {
+                UpdateMember(member, dbMember);
+            }
+
+            if (dbBillingAddress == null)
+            {
+                billingAddress.Member = member;
+                db.Addresses.Add(billingAddress);
+            }
+            else
+            {
+                UpdateAddress(billingAddress, dbBillingAddress);
+            }
+
+            if (dbShippingAddress == null)
+            {
+                shippingAddress.Member = member;
+                db.Addresses.Add(shippingAddress);
+            }
+            else
+            {
+                UpdateAddress(shippingAddress, dbShippingAddress);
+            }
+
+            if (ModelState.IsValid || true)
+            {
+                try
+                {
+                    db.SaveChanges();
+                }
+                catch (DbEntityValidationException e)
+                {
+                    StringBuilder sb = new StringBuilder("");
+                    foreach (var entity in e.EntityValidationErrors)
+                    {
+                        foreach (var error in entity.ValidationErrors)
+                        {
+                            sb.Append(string.Format("{0} -> {1}\n", error.PropertyName, error.ErrorMessage));
+                        }
+                    }
+                    TempData["Message"] = sb.ToString();
+                }
+                //return RedirectToAction("SearchGames", "Game");
+            }
+            return View(new ProfileViewModel { Member = member, BillingAddress = billingAddress, ShippingAddress = shippingAddress });
         }
 
-        /// <summary>
-        /// verifies that the user is using an email address that they have access to
-        /// ***No view required***
-        /// </summary>
-        /// <param name="id">member id from emailed link</param>
-        /// <param name="verificationHash">verification hash from emailed link</param>
-        /// <returns>redirect to Home/Index with message about account activation</returns>
-        public ActionResult Verify(int? id, string verificationHash)
+        void UpdateMember(Member updateFrom, Member updateTo)
         {
-            return RedirectToAction("Home/Index");
+            updateTo.User.FirstName = updateFrom.User.FirstName;
+            updateTo.User.LastName = updateFrom.User.LastName;
+            updateTo.User.Email = updateFrom.User.Email;
+            updateTo.User.Gender = updateFrom.User.Gender;
+            updateTo.IsEmailMarketingAllowed = updateFrom.IsEmailMarketingAllowed;
         }
 
-        /// <summary>
-        /// accessed from profile page when member knows current password
-        /// ***no view required***
-        /// </summary>
-        /// <param name="memberId">member id</param>
-        /// <param name="oldPassword">user-entered old password(must match db)</param>
-        /// <param name="newPassword">user-entered new password</param>
-        /// <returns>Profile page</returns>
-        public ActionResult ResetPassword(int? memberId, string oldPassword, string newPassword)
+        void UpdateAddress(Address updateFrom, Address updateTo)
         {
-            return RedirectToAction("Index");
-        }
-
-        /// <summary>
-        /// accessed from login header when user has forgotten their password and can't login
-        /// ***No view required****
-        /// </summary>
-        /// <param name="memberEmail">user-entered email</param>
-        /// <param name="generatedTemporaryPassword">generated temp pw</param>
-        /// <returns>Home page with message to check email for temporary password</returns>
-        public ActionResult ForgotPassword(string memberEmail, string generatedTemporaryPassword)
-        {
-            return RedirectToAction("Home/Index");
-
-        }
-        #endregion
-
-        /// <summary>
-        /// authenticates the user and then logs them in
-        /// ***form in visitor header***
-        /// </summary>
-        /// <param name="email">email from user entry</param>
-        /// <param name="hashedPassword">hashed password from user entry</param>
-        /// <returns>login and redirect to Game/SearchGames</returns>
-        public ActionResult Login(string email, string hashedPassword)
-        {
-            return RedirectToAction("Game/SearchGames");
-
+            updateTo.PostalCode = updateFrom.PostalCode;
+            updateTo.Region = updateFrom.PostalCode;
+            updateTo.StreetAddress= updateFrom.PostalCode;
         }
     }
 }

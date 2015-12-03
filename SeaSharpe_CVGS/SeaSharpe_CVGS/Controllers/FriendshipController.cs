@@ -18,26 +18,6 @@ namespace SeaSharpe_CVGS.Controllers
     public class FriendshipController : Controller
     {
         /// <summary>
-        /// Prop and Fields
-        /// </summary>
-
-        private ApplicationUser CurrentUser
-        {
-            get
-            {
-                return UserManager.FindById(User.Identity.GetUserId());
-            }
-        }
-
-        private Member CurrentMember
-        {
-            get
-            {
-                return db.Members.FirstOrDefault(m => m.User.UserName == CurrentUser.UserName);
-            }
-        }
-
-        /// <summary>
         /// Constructor
         /// </summary>
         public FriendshipController()

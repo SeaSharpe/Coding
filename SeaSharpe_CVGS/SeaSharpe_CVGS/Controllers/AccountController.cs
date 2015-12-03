@@ -48,7 +48,7 @@ namespace SeaSharpe_CVGS.Controllers
 
             // This doesn't count login failures towards account lockout
             // To enable password failures to trigger account lockout, change to shouldLockout: true
-            var result = await SignInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, shouldLockout: false);
+            var result = await SignInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberMe, shouldLockout: true);
             switch (result)
             {
                 case SignInStatus.Success:
@@ -213,30 +213,6 @@ namespace SeaSharpe_CVGS.Controllers
         public ActionResult ForgotPasswordConfirmation()
         {
             return View();
-        }
-
-        /// <summary>
-        /// Check if a user is an employee
-        /// </summary>
-        /// <param name="user">The user to check</param>
-        /// <param name="db">If the db context is not provided a new one will be created.</param>
-        /// <returns>True if user is an employee.</returns>
-        public static bool IsEmployee(ApplicationUser user, ApplicationDbContext db = null)
-        {
-            if (db == null) db = new ApplicationDbContext();
-            return db.Employees.FirstOrDefault(employee => employee.User == user) != null;
-        }
-
-        /// <summary>
-        /// Check if a user is a member
-        /// </summary>
-        /// <param name="user">The user to check</param>
-        /// <param name="db">If the db context is not provided a new one will be created.</param>
-        /// <returns>True if user is a member</returns>
-        public static bool IsMember(ApplicationUser user, ApplicationDbContext db = null)
-        {
-            if (db == null) db = new ApplicationDbContext();
-            return db.Members.FirstOrDefault(member => member.User == user) != null;
         }
 
         //
